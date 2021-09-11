@@ -3,17 +3,19 @@ from os import path
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
+from caches import Cache
 
 class BaseCache:
-    def __init__(self, key: str, ext: str=None):
+    def __init__(self, key: str, ext: str = None):
         self.key = key
         self.ext = ext or key
 
-    def cache_item(self, cache, id, data, metadata):
+    def cache_item(self, cache: Cache, id: str, data: str, metadata: dict[str, Any]):
         cache.record_entry(id, metadata)
         cache.store_data(metadata['filename'], data)
 
-    def get_metadata(self, id, data):
+    def get_metadata(self, id: str, data: str) -> dict[str, Any]:
         timestamp = int(datetime.datetime.now().timestamp())
         metadata = {
             'timestamp': timestamp,
@@ -22,13 +24,18 @@ class BaseCache:
         }
         return metadata
 
-    def hash(self, data):
+    def hash(self, data: str) -> str:
         return hashlib.md5(data.encode()).hexdigest()
 
-    def is_same(self, meta1, meta2):
+    def is_same(self, meta1: dict[str, Any], meta2: dict[str, Any]) -> bool:
         return meta1 is not None and meta2 is not None and meta1['hash'] == meta2['hash']
 
 class Cache:
+    caches: dict[str, BaseCache]
+    config: dict[str, Any]
+    folder: str
+    config_file: str
+
     def __init__(self, cache_folder: str, cache_file: str):
         self.caches = {}
         self.folder = cache_folder
@@ -63,9 +70,9 @@ class Cache:
         self.config[id].append(metadata)
         self.save_config()
 
-    def get_latest_entry(self, id):
-        latest = None
-        latest_val = 0
+    def get_latest_entry(self, id: str) -> dict:
+        latest: dict[str, Any] = None
+        latest_val: int = 0
         if id not in self.config:
             self.config[id] = []
         for meta in self.config[id]:
@@ -78,7 +85,7 @@ class Cache:
         with open(path.join(self.folder, filename), 'w', encoding='utf-8') as file:
             file.write(data)
 
-    def read_data(self, filename: str):
+    def read_data(self, filename: str) -> str:
         with open(path.join(self.folder, filename), 'r', encoding='utf-8') as file:
             return file.read()
 

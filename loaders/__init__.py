@@ -1,5 +1,6 @@
+from typing import Any, Union, Optional
 class DataEntry:
-    def __init__(self, data: str, key: str=None):
+    def __init__(self, data: str, key: Optional[str] = None):
         self.data = data
         self.key = key
 
@@ -7,15 +8,17 @@ class Loader:
     def __init__(self, name: str):
         self.name = name
 
-    def load(self, settings: dict):
+    def load(self, settings: dict[str, Any]) -> DataEntry:
         raise NotImplementedError()
 
 class CompositeLoader(Loader):
-    def __init__(self, name:str=None):
+    children: list[Loader]
+
+    def __init__(self, name: str = None):
         super().__init__(name)
         self.children = []
 
-    def load(self, settings: dict):
+    def load(self, settings: dict[str, Any]) -> Union[DataEntry, list[DataEntry]]:
         base, submodule, *rest = settings["loader"].split('/')
         if self.name is not None:
             settings["loader"] = f'{submodule}/{"/".join(rest)}'
@@ -23,7 +26,7 @@ class CompositeLoader(Loader):
         else:
             return self.loadSubmodule(base, settings)
 
-    def loadSubmodule(self, submodule: str, settings: dict):
+    def loadSubmodule(self, submodule: str, settings: dict[str, Any]) -> Union[DataEntry, list[DataEntry]]:
         for child in self.children:
             if child.name == submodule:
                 return child.load(settings)

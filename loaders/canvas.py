@@ -1,4 +1,4 @@
-from caches import Cache
+from typing import Any
 from canvasapi import Canvas
 
 from loaders import DataEntry, Loader, CompositeLoader
@@ -11,7 +11,7 @@ class AnnouncementLoader(Loader):
     def __init__(self):
         super().__init__('announcement')
 
-    def load(self, settings: dict):
+    def load(self, settings: dict[str, Any]) -> list[DataEntry]:
         course_id = settings['course_id']
         course = canvas.get_course(course_id)
 

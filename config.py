@@ -2,6 +2,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+from typing import Any
 import os
 import json
 
@@ -13,4 +14,4 @@ settings = None
 with open('settings.json', 'r', encoding='utf-8') as settings_file:
     settings = settings_file.read()
 
-config = json.loads(settings)
+config: dict[str, Any] = json.loads(settings)
