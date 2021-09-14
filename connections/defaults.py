@@ -1,15 +1,15 @@
+import sys
 from logging import Handler, StreamHandler
-import logging
-from connections import Connection, LogHandlerMixin
+from connections.base import Connection, LogHandlerMixin
 
 class ConsoleLogHandler(LogHandlerMixin, Connection):
     def __init__(self):
         settings = {
-            'id': 'console',
+            'id': 'builtin/console',
             'type': 'builtin',
             'log_level': 'DEBUG'
         }
-        super().__init__('builtin/console', settings)
+        super().__init__(settings, 'builtin/console')
 
     def createHandler(self) -> Handler:
         return StreamHandler()
