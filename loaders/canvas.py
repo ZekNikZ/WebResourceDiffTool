@@ -2,10 +2,6 @@ from typing import Any
 from canvasapi import Canvas
 
 from loaders import DataEntry, Loader, CompositeLoader
-from config import API_URL, API_TOKEN
-
-# Canvas API
-canvas = Canvas(API_URL, API_TOKEN)
 
 class AnnouncementLoader(Loader):
     def __init__(self):

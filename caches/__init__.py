@@ -1,10 +1,10 @@
+from __future__ import annotations
 import datetime
 from os import path
 import hashlib
 import json
 from pathlib import Path
 from typing import Any
-from caches import Cache
 
 class BaseCache:
     def __init__(self, key: str, ext: str = None):

@@ -30,7 +30,7 @@ class CompositeLoader(Loader):
         for child in self.children:
             if child.name == submodule:
                 return child.load(settings)
-        raise ValueError()
+        raise ValueError(f"subloader '{submodule}' in loader '{self.name or 'base'}' was requested but was not found")
 
     def registerChild(self, loader: Loader):
         self.children.append(loader)

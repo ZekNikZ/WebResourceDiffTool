@@ -1,13 +1,5 @@
-# .env preloader
-from dotenv import load_dotenv
-load_dotenv()
-
 from typing import Any
-import os
 import json
-
-API_URL = os.getenv('CANVAS_API_URL')
-API_TOKEN = os.getenv('CANVAS_API_TOKEN')
 
 # Load settings file
 settings = None

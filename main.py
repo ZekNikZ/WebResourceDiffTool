@@ -1,27 +1,29 @@
-import requests
-import logging
-
+from exceptions import LoaderError, MissingSettingsError
+from loaders.web import WebLoader
 from loaders import CompositeLoader
 from loaders.canvas import CanvasLoader
 from config import config
 from caches import Cache
 from caches.basic import HTMLCache, TextCache
+import logs
+import requests
+
+logger = logs.get('app')
 
 def check_version():
     curr_version = None
     with open('version.txt', 'r') as file:
         curr_version = file.read()
     new_version = str(requests.get('https://zeknikz.github.io/WebResourceDiffTool/version.txt').text)
-    logging.info('Checking for updates')
+    logger.info('Checking for updates')
     if curr_version != new_version:
-        logging.warning(f'This version of the diff tool ({curr_version}) does not match the latest release ({new_version}).')
+        logger.warning(f'This version of the diff tool ({curr_version}) does not match the latest release ({new_version}).')
     else:
-        logging.info('Up to date!')
+        logger.info('Up to date!')
 
 def main():
     # Setup logging
-    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-    logging.info('Initializing diff tool')
+    logger.info('Initializing diff tool')
 
     # Check version
     check_version()
@@ -29,6 +31,7 @@ def main():
     # Load loader modules
     base_loader = CompositeLoader()
     base_loader.registerChild(CanvasLoader())
+    base_loader.registerChild(WebLoader())
 
     # Load cache modules
     base_cache = Cache('data', config["cache_file"])
@@ -39,7 +42,15 @@ def main():
     for watcher in config['watchers']:
         id = watcher['id']
         data_type = watcher['data_type']
-        data = base_loader.load(watcher)
+        data = None
+        try:
+            data = base_loader.load(watcher)
+        except LoaderError or MissingSettingsError:
+            logger.error(f"Watcher '{id}' did not succeed, look above for more details")
+            pass
+
+        if data is None:
+            continue
 
         for item in data:
             cache_key = id + (f'-{item.key}' if item.key else '')
